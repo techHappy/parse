@@ -3,8 +3,11 @@ package cfg.parse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -27,11 +30,14 @@ public class Predicate extends TopDownParsing {
 		predicate = new List[cfg.getNonterminals().size()][cfg.getTerminals().size()];
 		if(cfg.isLL1())	makePredicate();
 		else {
-			cfg.removeLeftRecursion();
+			removeLeftRecursion();
 			if(cfg.isLL1()) makePredicate();
-			else System.err.println("¸ÃÎÄ·¨²»ÊÇLL1ÎÄ·¨£¬²»ÄÜ²ÉÓÃÔ¤²â·ÖÎö·¨£¡");
+			else System.err.println("ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½LL1ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü²ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
 	}
+	
+
+	
 
 	private void makePredicate() {
 		for(Rule rule : cfg.getRules()) {
@@ -50,6 +56,99 @@ public class Predicate extends TopDownParsing {
 		}
 	}
 	
+	public void removeLeftRecursion() {
+		for(int i=0;i<cfg.getNonterminals().size();i++) {
+			Map<NontermianlSymbol, List<Rule>> map = cfg.ruleGroupByNonterminal();
+			List<Rule> iRules = map.get(cfg.getNonterminals().get(i));
+			for(int j=0;j<i;j++) {
+				List<Rule> jRules = map.get(cfg.getNonterminals().get(j));
+				for(int k=0;k<iRules.size();k++) {
+					Rule rule = iRules.get(k);
+					if(rule.getRight().get(0) == cfg.getNonterminals().get(j)) {
+						iRules.remove(rule);
+						cfg.getRules().remove(rule);
+						//
+						k--;
+						
+						for(int l=0;l<jRules.size();l++) {
+							List<Symbol> right = new ArrayList<>();
+							right.addAll(jRules.get(l).getRight());
+							right.addAll(rule.getRight().subList(1, rule.getRight().size()));
+							
+							Rule r = new Rule(cfg.getNonterminals().get(i), right);
+							
+							cfg.getRules().add(r);
+							iRules.add(r);
+						}
+					}
+				}
+			}
+			
+			if(hasDirectLeftRecursion(iRules)) {
+				NontermianlSymbol A1 = new NontermianlSymbol(cfg.getNonterminals().get(i).name+"1");
+				cfg.getNonterminals().add(A1);
+				for(Rule rule : iRules) {
+					cfg.getRules().remove(rule);
+					List<Symbol> right = new ArrayList<>();
+					if(rule.getRight().get(0) == rule.getLeft()) {
+						right.addAll(rule.getRight().subList(1, rule.getRight().size()));
+						right.add(A1);
+						cfg.getRules().add(new Rule(A1, right));
+					}else {
+						right.addAll(rule.getRight());
+						right.add(A1);
+						cfg.getRules().add(new Rule(cfg.getNonterminals().get(i), right));
+					}
+				}
+				
+				cfg.getRules().add(new Rule(A1, Arrays.asList(CFG.epsilon)));
+			}
+		}
+
+		Map<NontermianlSymbol, List<Rule>> map = cfg.ruleGroupByNonterminal();
+		Queue<NontermianlSymbol> queue = new LinkedList<>();
+		Set<NontermianlSymbol> reserved = new HashSet<>();
+		reserved.add(cfg.getStartSymbol());
+		
+		boolean[] marked = new boolean[cfg.getNonterminals().size()];
+		marked[cfg.getNonterminals().indexOf(cfg.getStartSymbol())] = true;
+		queue.add(cfg.getStartSymbol());
+		
+		while(!queue.isEmpty()) {
+			NontermianlSymbol nontermianlSymbol = queue.remove();
+			for(Rule rule : map.get(nontermianlSymbol)) {
+				List<Symbol> right = rule.getRight();
+				for(Symbol symbol : right) {
+					if(NontermianlSymbol.class.isInstance(symbol) 
+							&& symbol != rule.getLeft()
+							&& !marked[cfg.getNonterminals().indexOf(symbol)]) {
+						marked[cfg.getNonterminals().indexOf(symbol)] = true;
+						queue.add((NontermianlSymbol) symbol);
+						reserved.add((NontermianlSymbol) symbol);
+					}
+				}
+			}
+		}
+		
+		Iterator<Rule> it = cfg.getRules().iterator();
+		while(it.hasNext()) {
+			Rule rule = it.next();
+			if(!reserved.contains(rule.getLeft())) {
+				it.remove();
+			}
+		}
+		cfg.getTerminals().add(CFG.epsilon);
+	}
+
+	private boolean hasDirectLeftRecursion(List<Rule> rules) {
+		for(Rule rule : rules) {
+			if(rule.getLeft() == rule.getRight().get(0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public boolean parse(List<Symbol> symbols) {
 		// TODO Auto-generated method stub
@@ -80,11 +179,11 @@ public class Predicate extends TopDownParsing {
 		NontermianlSymbol T = new NontermianlSymbol("T");
 		NontermianlSymbol F = new NontermianlSymbol("F");
 		
-		TerminalSymbol plus = new TerminalSymbol('+');
-		TerminalSymbol times = new TerminalSymbol('*');
-		TerminalSymbol lp = new TerminalSymbol('(');
-		TerminalSymbol rp = new TerminalSymbol(')');
-		TerminalSymbol i = new TerminalSymbol('i');
+		TerminalSymbol plus = new TerminalSymbol("+");
+		TerminalSymbol times = new TerminalSymbol("*");
+		TerminalSymbol lp = new TerminalSymbol("(");
+		TerminalSymbol rp = new TerminalSymbol(")");
+		TerminalSymbol i = new TerminalSymbol("i");
 		
 		Rule r1 = new Rule(E, Arrays.asList(E,plus,T));
 		Rule r2 = new Rule(E, Arrays.asList(T));
@@ -94,15 +193,11 @@ public class Predicate extends TopDownParsing {
 		Rule r6 = new Rule(F, Arrays.asList(lp,E,rp));
 		
 		Set<Rule> rules = new HashSet<>(Arrays.asList(r1,r2,r3,r4,r5,r6));
-		Set<NontermianlSymbol> nonterminals = new HashSet<>(Arrays.asList(E,T,F));
+		Set<NontermianlSymbol> nontermianlSymbols = new HashSet<>(Arrays.asList(E,T,F));
 		Set<TerminalSymbol> terminals = new HashSet<>(Arrays.asList(plus,times,lp,rp,i));
 		NontermianlSymbol startSymbol = E;
 		
-		CFG cfg = new CFG(rules, nonterminals,terminals,startSymbol);
-		
-		System.out.println(cfg.isLL1());
-		cfg.removeLeftRecursion();
-		System.out.println(cfg.isLL1());
+		CFG cfg = new CFG(rules, nontermianlSymbols,terminals,startSymbol);
  
 		for(Rule rule : cfg.getRules()) {
 			System.out.printf("%-20s",rule);

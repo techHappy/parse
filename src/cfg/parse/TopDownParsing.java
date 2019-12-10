@@ -2,7 +2,7 @@ package cfg.parse;
 
 import cfg.CFG;
 
-public abstract class TopDownParsing implements Parsing{
+public abstract class TopDownParsing implements Parser{
 
 	CFG cfg;
 	

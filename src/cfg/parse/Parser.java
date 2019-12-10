@@ -9,7 +9,7 @@ import cfg.Symbol;
  * @author 90946
  *
  */
-public interface Parsing {
+public interface Parser {
 	/**
 	 * 解析输入的文法符号序列，并判断是否接受该输入流
 	 * @param symbols 输入流

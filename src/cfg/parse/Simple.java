@@ -140,7 +140,7 @@ public class Simple extends ButtonUpParsing {
 		}
 	}
 	
-	//或取一个文法符号在关系矩阵中的索引
+	//获取一个文法符号在关系矩阵中的索引
 	private int getMatrixIndex(Symbol symbol) {
 		//#规定在matrix.length-1的地方
 		if(symbol == end)return matrix.length-1;
@@ -259,9 +259,9 @@ public class Simple extends ButtonUpParsing {
 		NontermianlSymbol Z = new NontermianlSymbol("Z");
 		NontermianlSymbol E = new NontermianlSymbol("E");
 		
-		TerminalSymbol a = new TerminalSymbol('a');
-		TerminalSymbol b = new TerminalSymbol('b');
-		TerminalSymbol plus = new TerminalSymbol('+');
+		TerminalSymbol a = new TerminalSymbol("a");
+		TerminalSymbol b = new TerminalSymbol("b");
+		TerminalSymbol plus = new TerminalSymbol("+");
 		
 		Rule r1 = new Rule(Z, Arrays.asList(a,E,a));
 		Rule r2 = new Rule(E, Arrays.asList(E,plus,b));
@@ -275,7 +275,6 @@ public class Simple extends ButtonUpParsing {
 		CFG cfg = new CFG(rules, nonterminals,terminals,startSymbol);
 		
 		System.out.println(cfg.isLL1());
-		cfg.removeLeftRecursion();
 		System.out.println(cfg.isLL1());
 		Simple simple = new Simple(cfg);
 		System.out.println(simple.parse(Arrays.asList(a,b,plus,b,a)));
@@ -288,10 +287,10 @@ public class Simple extends ButtonUpParsing {
 		NontermianlSymbol M = new NontermianlSymbol("M");
 		NontermianlSymbol L = new NontermianlSymbol("L");
 		
-		TerminalSymbol a = new TerminalSymbol('a');
-		TerminalSymbol b = new TerminalSymbol('b');
-		TerminalSymbol lp = new TerminalSymbol('(');
-		TerminalSymbol rp = new TerminalSymbol(')');
+		TerminalSymbol a = new TerminalSymbol("a");
+		TerminalSymbol b = new TerminalSymbol("b");
+		TerminalSymbol lp = new TerminalSymbol("(");
+		TerminalSymbol rp = new TerminalSymbol(")");
 		
 		Rule r1 = new Rule(Z, Arrays.asList(b,M,b));
 		Rule r2 = new Rule(M, Arrays.asList(a));

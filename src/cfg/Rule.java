@@ -31,6 +31,12 @@ public class Rule {
 	}
 	
 	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return left.hashCode()+right.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
 		StringBuilder sb = new StringBuilder();

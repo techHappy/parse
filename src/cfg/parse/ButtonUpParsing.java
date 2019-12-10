@@ -3,7 +3,7 @@ package cfg.parse;
 
 import cfg.CFG;
 
-public abstract class ButtonUpParsing implements Parsing{
+public abstract class ButtonUpParsing implements Parser{
 
 	CFG cfg;
 	

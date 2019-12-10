@@ -22,4 +22,10 @@ public class NontermianlSymbol implements Symbol{
 		// TODO Auto-generated method stub
 		return name;
 	}
+	
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return name.hashCode();
+	}
 }
