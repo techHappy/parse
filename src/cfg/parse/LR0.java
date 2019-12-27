@@ -99,55 +99,7 @@ public class LR0 extends LR {
 		if(!lr0)throw new RuntimeException("该文法不是LR0文法！");
 	}
 
-	@Override
-	public boolean parse(List<Symbol> symbols) {
-		// TODO Auto-generated method stub
-		//状态栈
-		LinkedList<Integer> stateStack = new LinkedList<>();
-		//符号栈
-		LinkedList<Symbol> symbolStack = new LinkedList<>();
-		//输入流
-		List<Symbol> stream = new LinkedList<>(symbols);
-		
-		stateStack.add(0);
-		symbolStack.add(CFG.over);
-		stream.add(CFG.over);
-		
-		do {
-			Symbol transfer = stream.get(0);
-			String act = ACTION[stateStack.peekLast()][cfg.getTerminals().indexOf(transfer)];
-			
-			String[] parts = act.split("");
-			switch(parts[0]) {
-			case "a":
-				//接受
-				return true;
-			case "S":
-				//移入
-				stream.remove(0);
-				symbolStack.add(transfer);
-				stateStack.add(Integer.parseInt(parts[1]));
-				break;
-			case "R":
-				//规约
-				int index = Integer.parseInt(parts[1]);
-				Rule rule = cfg.getRules().get(index);
-				//将状态栈和符号栈的指针减去rule.getRight().size()
-				for(int i=0;i<rule.getRight().size();i++) {
-					stateStack.pollLast();
-					symbolStack.pollLast();
-				}
-				//符号栈加入左边符号
-				symbolStack.addLast(rule.getLeft());
-				//状态栈转移
-				int nextState = Integer.parseInt(GOTO[stateStack.peekLast()][cfg.getNonterminals().indexOf(rule.getLeft())]);
-				stateStack.addLast(nextState);
-				break;
-			}
-			
-		}while(true);
-		
-	}
+
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub		
@@ -207,7 +159,7 @@ public class LR0 extends LR {
 		CFG cfg = new CFG(rules, nonterminals,terminals,startSymbol);
 		
 		LR0 lr0 = new LR0(cfg);
-		System.out.println(lr0.parse(Arrays.asList(a,b,b,c,d,e)));;
+		System.out.println(lr0.parse(Arrays.asList(a,b,b,c,d,e)));
 	}
 
 }

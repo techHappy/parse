@@ -1,5 +1,6 @@
 package cfg.parse;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import cfg.NontermianlSymbol;
 import cfg.Rule;
 import cfg.Symbol;
 import cfg.TerminalSymbol;
+import util.Displays;
 
 /**
  * 自顶向上分析中的简单优先法
@@ -39,7 +41,7 @@ public class Simple extends ButtonUpParsing {
 	//输入串的结束符号#
 	private static final Symbol end = CFG.over;
 	//简单优先关系矩阵
-	private char[][] matrix;
+	private Character[][] matrix;
 	//产生式右侧对左侧的映射，即规约
 	Map<List<Symbol>,NontermianlSymbol> reduce = new HashMap<List<Symbol>, NontermianlSymbol>();
 	
@@ -51,9 +53,20 @@ public class Simple extends ButtonUpParsing {
 		super(cfg);
 		// TODO Auto-generated constructor stub
 		int size = cfg.getNonterminals().size() + cfg.getTerminals().size();
-		matrix = new char[size+1][size+1];
+		matrix = new Character[size][size];
 		makeMatrix();
 		makedReduce();
+		displayTable();
+	}
+	
+	public void displayTable() {
+		List<Symbol> list = new ArrayList<>(cfg.getNonterminals());
+		list.addAll(cfg.getTerminals());
+		Displays.displayTable(
+				matrix, 
+				list, 
+				list, 
+				"关系矩阵");
 	}
 	
 	//构造reduce
@@ -143,7 +156,6 @@ public class Simple extends ButtonUpParsing {
 	//获取一个文法符号在关系矩阵中的索引
 	private int getMatrixIndex(Symbol symbol) {
 		//#规定在matrix.length-1的地方
-		if(symbol == end)return matrix.length-1;
 		
 		if(NontermianlSymbol.class.isInstance(symbol)) {
 			return cfg.getNonterminals().indexOf(symbol);
@@ -256,28 +268,26 @@ public class Simple extends ButtonUpParsing {
 	}
 	
 	public static void main(String[] args) {
-		NontermianlSymbol Z = new NontermianlSymbol("Z");
 		NontermianlSymbol E = new NontermianlSymbol("E");
+		NontermianlSymbol T = new NontermianlSymbol("T");
 		
-		TerminalSymbol a = new TerminalSymbol("a");
-		TerminalSymbol b = new TerminalSymbol("b");
 		TerminalSymbol plus = new TerminalSymbol("+");
+		TerminalSymbol minus = new TerminalSymbol("-");
+		TerminalSymbol i = new TerminalSymbol("i");
 		
-		Rule r1 = new Rule(Z, Arrays.asList(a,E,a));
-		Rule r2 = new Rule(E, Arrays.asList(E,plus,b));
-		Rule r3 = new Rule(E, Arrays.asList(b));
+		Rule r1 = new Rule(E, Arrays.asList(E,plus,T));
+		Rule r2 = new Rule(E, Arrays.asList(E,minus,T));
+		Rule r3 = new Rule(T, Arrays.asList(i));
 		
 		Set<Rule> rules = new HashSet<>(Arrays.asList(r1,r2,r3));
-		Set<NontermianlSymbol> nonterminals = new HashSet<>(Arrays.asList(Z,E));
-		Set<TerminalSymbol> terminals = new HashSet<>(Arrays.asList(a,b,plus));
-		NontermianlSymbol startSymbol = Z;
+		Set<NontermianlSymbol> nonterminals = new HashSet<>(Arrays.asList(E,T));
+		Set<TerminalSymbol> terminals = new HashSet<>(Arrays.asList(i,minus,plus));
+		NontermianlSymbol startSymbol = E;
 		
 		CFG cfg = new CFG(rules, nonterminals,terminals,startSymbol);
 		
-		System.out.println(cfg.isLL1());
-		System.out.println(cfg.isLL1());
 		Simple simple = new Simple(cfg);
-		System.out.println(simple.parse(Arrays.asList(a,b,plus,b,a)));
+//		System.out.println(simple.parse(Arrays.asList(a,b,plus,b,a)));
 	}
 
 }

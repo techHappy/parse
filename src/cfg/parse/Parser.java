@@ -16,4 +16,5 @@ public interface Parser {
 	 * @return 该文法是否接受该输入流
 	 */
 	public boolean parse(List<Symbol> symbols);
+	
 }

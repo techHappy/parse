@@ -190,6 +190,16 @@ public class SLR1 extends LR {
 		}while(true);
 	}
 	
-	
+	public static void main(String[] args) {
+		CFG cfg = CFG.makeCFG(
+				"S -> a A d \n"
+				+ "S -> b A c \n"
+				+ "S -> a e c\n"
+				+ "S -> b e d\n"
+				+ "A -> e", "S");
+		@SuppressWarnings("unused")
+		
+		SLR1 slr1 = new SLR1(cfg);
+	}
 
 }

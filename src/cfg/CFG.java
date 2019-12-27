@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CFG {
 	//产生式序列
@@ -84,6 +86,8 @@ public class CFG {
 		this.nonterminals = new ArrayList<>(nonterminals);
 		this.terminals = new HashSet<>(terminals);
 		this.startSymbol = startSymbol;
+		
+		caculateIsLL1();
 	}
 	
 	/**
@@ -97,6 +101,7 @@ public class CFG {
 		this.terminals = new HashSet<>(cfg.terminals);
 		this.startSymbol = cfg.startSymbol;
 
+		caculateIsLL1();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -342,6 +347,7 @@ public class CFG {
 							}
 							if(!exist) {
 								canInferring[nonterminals.indexOf(r.left)] =FALSE;
+								break;
 							}
 						}
 					}
@@ -368,7 +374,7 @@ public class CFG {
 	 * @return 与symbols相应的FIRST集
 	 */
 	public Set<TerminalSymbol> FIRST(Symbol ... symbols){
-		assert(symbols.length > 0);
+		if(symbols.length == 0) return Stream.of(epsilon).collect(Collectors.toSet());
 		Set<TerminalSymbol> set = new HashSet<>();
 		
 		if(symbols.length == 1) {
@@ -466,7 +472,7 @@ public class CFG {
 	 * 
 	 * <p>
 	 * 会改变该文法的终结符集和非终结符集
-	 * <\p>
+	 * 
 	 * @param rule 额外的产生式
 	 */
 	public void addRule(Rule rule) {

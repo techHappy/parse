@@ -288,6 +288,7 @@ public class OPG extends ButtonUpParsing {
 				+ "P -> i", "E1"));
 		TerminalSymbol i = new TerminalSymbol("i");
 		TerminalSymbol plus = new TerminalSymbol("+");
+		@SuppressWarnings("unused")
 		TerminalSymbol times = new TerminalSymbol("*");
 		TerminalSymbol lp = new TerminalSymbol("(");
 		TerminalSymbol rp = new TerminalSymbol(")");
